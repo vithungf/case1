@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>snake</title>
+    <div id="score" style="left: 500px; top: 0px">Score</div>
+
+</head>
+<body>
+<!--<img id="background" src="world.png"  alt="">-->
+<canvas id="canvas"></canvas>
+</body>
+<script>
+    let background = "#d0c0c0"; // màu nền
+    let worm_color = "#b26915"; // màu con rắn
+    let food_color = "#0e0c0c";// màu thức ăn
+
+    //vẽ mức play
+
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext('2d');
+    canvas.width = 500
+    canvas.height = 450;
+
+    let fr = 15;  // tốc độ // frame: Khung .
+    let s = 15; // độ to v dài của rắn
+    let t = canvas.width / 20;
+
+    let pos;
+    let vel;
+    let food;
+    let worm;
+
+    function init() {
+        pos = {x: 10, y: 10}; // vị trí bắt đầu của rắn
+        vel = {x: 0, y: 0};
+        worm = [ //tạo con rắn bằng mảng
+            {x: 8, y: 10},
+            {x: 9, y: 10},
+            {x: 10, y: 10},
+        ]
+        randomFood(); // gọi hàm function food
+    }
+
+    init();
+
+    // function cho random food
+    function randomFood() {
+
+        food = {
+            x: Math.floor(Math.random() * t),
+            y: Math.floor(Math.random() * t),
+        }
+        drawFood();
+
+
+    }
+
+    function drawFood() {
+        ctx.fillStyle = food_color;
+        ctx.fillRect(food.x * s, food.y * s, s, s);
+    }
+
+    document.addEventListener('keydown', keydown);
+
+    // sự kiện bàn phím
+    function keydown(e) {
+        switch (e.keyCode) {
+            case 37: {
+                return vel = {x: -1, y: 0}
+            }
+            case 38: {
+                return vel = {x: 0, y: -1}
+            }
+            case 39: {
+                return vel = {x: 1, y: 0}
+            }
+            case 40: {
+                return vel = {x: 0, y: 1}
+            }
+        }
+    }
+
+    function wormGame() {
+        ctx.fillStyle = background;// tô màu nền
+        ctx.fillRect(0, 0, canvas.width, canvas.height); // vẽ ô hcn
+        ctx.fillStyle = worm_color; // tô màu rắn
+        for (let cell of worm) {
+            ctx.fillRect(cell.x * s, cell.y * s, s, s); // vẽ rắn
+        }
+        drawFood();
+
+        pos.x += vel.x;
+        pos.y += vel.y;
+
+        if (pos.x < 0 || pos.x > t || pos.y < 0 || pos.y > t) {
+            init();
+        }
+
+
+        // dài ra
+        if (food.x === pos.x && food.y === pos.y) {
+            worm.push({...pos});
+            pos.x += vel.x;
+            pos.y += vel.y;
+            randomFood();
+            drawFood();
+        }
+        // va tường hoặc cắn chính mình
+        if (vel.x || vel.y) {
+            for (let cell of worm) {
+                if (cell.x === pos.x && cell.y === pos.y) {
+                    init();
+                }
+            }
+            worm.push({...pos});
+            worm.shift();
+        }
+
+    }
+
+    setInterval(() => { // set time liên tục. ngược lại với setTimeOut
+        requestAnimationFrame(wormGame);
+    }, 1200 / fr)
+
+</script>
+</html>
